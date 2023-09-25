@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Register</title>
+        <!--bootstrap css link-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" 
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+        <!-- font awesome link-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" 
+        integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <!-- custom css file link  -->
+        {% load static %}
+        <link rel="icon" type="image/png" href="{% static 'images/favicon-32x32.png' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    </head>
+<body>
+    <!-- nav bar -->
+    <div class = "container-nav">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/"><i class="fa-solid"></i>RyCircle</a> 
+                <!-- extend button -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/FAQ/">FAQ/contact</a>
+                        </li>
+                        {% if 'member_id' in request.session %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/appointment/">Booking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/voucher/">Vouchers</a>
+                        </li>
+                        {% endif %}
+                        {% for message in messages %}
+                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                                {{ message }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="nav navbar-nav ms-auto w-100 justify-content-end">
+                        <li class="nav-item">
+                            {% if 'member_id' in request.session %}
+                                
+                            {% else %}
+                                <li><a class="nav-link" href="/login/">Login</a></li>
+                            {% endif %}
+                        </li>
+                        <li class="nav-item">
+                            {% if 'member_id' in request.session %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'profile' phone_number=request.session.phone_number %}">Profile</a>
+                                </li>
+                                <li><a class="nav-link" href="/logout/">logout</a></li>
+                            {% else %}
+                                <li><a class="nav-link" href="/register/">Register</a></li>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <!-- end of nav bar --> 
+    <!--Booking page--> 
+    <div class="container py-5">
+        <h1>Booking</h1>
+            <form action = "addbooking/" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h6>Make an appointment for pick-up:</h6>
+                
+                <div id="Type">
+                    Type of recyclable:
+                    <br>
+                    <select name="recycle_type" id="recycle_type" required>
+                        <option value="">--Select--</option>
+                        <option value="Paper">Paper</option>
+                        <option value="Fabric">Fabric</option>
+                        <option value="Plastic">Plastic</option>
+                        <option value="Metal">Metal</option>
+                        <option value="Mixed">Mixed</option>
+                    </select>
+                </div>
+                <br>
+                <div id="weight">
+                    Total Weight (in KG):
+                    <br>
+                    {% comment %} <input type=hidden name="userid" value="{{ request.session.member_id }}"> {% endcomment %}
+                    <input name="recycle_weight" id="recycle_weight" required>
+                </div>
+                <br>
+                <div id="address">
+                    Pick-up Address:
+                    <br>
+                    <input name="recycle_address" id="recycle_address" required>
+                </div>
+                <br>
+                Date:
+                <br>
+                <select name="pick_date" id="pick_date" onchange="hideTimeSlots(this)" required>
+                    <option value="">--Select--</option>
+                    {% for d in DateSlots %}
+                    <option value="{{ d.Date|date:'Y-m-d' }}">{{ d.Date }}</option>
+                    {% endfor %}
+                </select>
+                <br><br>
+                <div id="time" style = "display: none">
+                    Time:
+                    <br>
+                    <select name="pick_time" id="pick_time" required>
+                        <option class="after" value="">--Select--</option>
+                    </select>
+                </div>
+                <br><br>
+                <input type="submit" onclick="return confirm('Are you sure?')" value="submit">
+            </form>
+            {% comment %} Error/success messages below {% endcomment %}
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        <br>
+        <h3>Your bookings</h3>
+        <br>
+        {% if User_DateSlots_count > 0 %}
+            {% for B in page_bookings %}
+                <table border="1" style="width: 50%">
+                    <tr>
+                        <td>Pick up date</td>
+                        <td>Pick up time</td>
+                        <td>Address</td>
+                        <td>Status</td>
+                    </tr>
+                    <tr>
+                        <td>{{ B.pick_up_date }}</td>
+                        <td>{{ B.pick_up_time }}</td>
+                        <td>{{ B.pick_up_address }}</td>
+                        <td>
+                            {% if B.status == 0 %}
+                            <b>Unfulfilled</b>
+                            {% else %}
+                            <b>Fulfilled</b>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+                <br><br>
+            {% endfor %}
+                <div class="pagination">
+                    <span class="step-links">
+                        {% if page_bookings.has_previous %}
+                            <a href="?page=1">&laquo; first</a>
+                            <a href="?page={{ page_bookings.previous_page_number }}">back</a>
+                        {% endif %}
+                
+                        <span class="current">
+                            Page {{ page_bookings.number }} of {{ page_bookings.paginator.num_pages }}
+                        </span>
+                
+                        {% if page_bookings.has_next %}
+                            <a href="?page={{ page_bookings.next_page_number }}">next</a>
+                            <a href="?page={{ page_bookings.paginator.num_pages }}">last &raquo;</a>
+                        {% endif %}
+                    </span>
+                </div>
+        {% else %}
+            <h6>You have no prior bookings</h6>
+        {% endif %}
+    </div>
+    <footer class="text-center text-lg-start bg-white text-muted">
+        <!-- Copyright -->
+        <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.025);">
+        © 2023 Copyright:
+        <a class="text-reset fw-bold" href="/">RyCircle.org</a>
+        </div>
+        <!-- Copyright -->
+    </footer>
+    <!-- bootstrap js link-->
+    {% block jquery %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>
+        function hideTimeSlots(select) {
+            var x = document.getElementById("time");
+            if(select.value == '')
+            {
+                x.style.display = "none";
+            }
+            else
+            {
+                x.style.display = "block";
+                var $this = $('#pick_date').find(":selected").val();
+                if($this !=''){
+                    $('#pick_time').find('option').not(':first').remove();
+                    $.ajax({
+                        url: ''+$this,
+                        type: 'GET',
+                        success: function(resp){
+                            let options = '';
+                            resp.data.forEach(Slots => {
+                                options+='<option value='+Slots.available_timeslots+'>'+Slots.available_timeslots +'</option>';
+                            });
+                             $('#pick_time').append(options);
+                        }, 
+                        error: function(resp){
+                            console.log('Something went wrong');
+                        }
+                    });
+                }else{
+                    $('#pick_time').find('option').not(':first').remove();
+                }
+            }
+        }
+    </script>
+    {% endblock jquery %}
+</body>
+</html>

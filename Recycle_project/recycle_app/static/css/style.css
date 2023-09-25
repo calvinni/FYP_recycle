@@ -1,0 +1,36 @@
+.background
+    {
+        background-color: white;
+    }
+
+    .row {
+        display: flex;
+        margin-left:-5px;
+        margin-right:-5px;
+      }
+
+    .column {
+        flex: 50%;
+        padding: 5px;
+        text-align: center;
+        color: white
+      }
+      
+    table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        border: 1px solid #ddd;
+    }
+      
+    th, td {
+        padding: 16px;
+        padding: 10px 10px 10px 10px;
+        max-width: 100px;
+    }
+
+    tr  {
+        border-bottom: 1px solid black;
+        max-width: 100px;
+    }
+      
