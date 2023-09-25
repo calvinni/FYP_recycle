@@ -24,4 +24,5 @@ Exmaple: In the VSCode console, while in the virtual enviroment, type " pip inst
 7. Once the server is up, connect to the website through the link that is provided in the VSCode console.
 
 NOTE: All the test are in Recycle_project/recycle_app/test.py, to run them, use this code: " py manage.py test " while in the virtual enviroment.
+
 NOTE: To view the database, you'll have to download "DB Browser (SQLite)" and use it to open the "Recycle_project/db.sqlite3" file
